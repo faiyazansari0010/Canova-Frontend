@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { setUser } from "../../redux/userSlice";
+import { setUser } from "../../Redux/userSlice";
 import "./Signup.css";
 import axios from "axios";
 import { toast } from "react-toastify";
