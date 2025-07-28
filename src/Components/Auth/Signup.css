@@ -1,4 +1,4 @@
-.MainLogo{
+.MainLogo {
   position: absolute;
   top: 23px;
   left: 50px;
@@ -10,18 +10,20 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #cce4ff; 
+  background-color: #cce4ff;
   font-family: "SF Pro Rounded", "Roboto", sans-serif;
 }
 
 .signup-box {
+  margin-top: 40px;
   background-color: #ffffff;
-  padding: 48px;
+  padding: 24px 48px;
   border-radius: 20px;
   box-shadow: 0px 8px 40px rgba(0, 0, 0, 0.12);
-  width: 400px;
+  width: 410px;
   max-width: 90%;
   text-align: left;
+  /* height: 80%; */
 }
 
 .signup-box h2 {
@@ -41,13 +43,21 @@
   margin-bottom: 24px;
 }
 
+.signup-box label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
 .signup-box input {
   width: 100%;
   padding: 12px 16px;
   margin-bottom: 16px;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
-  background-color: #f9fafb;
+  background-color: #ffffff; /* updated to pure white */
   font-size: 14px;
   color: #111827;
 }
@@ -58,13 +68,27 @@
   background-color: #ffffff;
 }
 
-/* Labels — optional if you add <label> tags */
-.signup-box label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #374151;
+.password-wrapper {
+  position: relative;
+  margin-bottom: 2px;
+}
+
+.password-wrapper input {
+  padding-right: 40px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 16px;
+  color: #6b7280;
+}
+
+.eye-icon{
+  width: 20px;
 }
 
 .signup-box button {
@@ -90,6 +114,7 @@
   font-size: 13px;
   color: #6b7280;
   margin-top: 20px;
+  margin-bottom: 0;
 }
 
 .signup-box a {

@@ -5,14 +5,19 @@ import "./Signup.css";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "../../../constants";
+import { useNavigate, NavLink } from "react-router-dom";
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -22,7 +27,6 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const { name, email, password, confirmPassword } = formData;
 
     if (!name || !email || !password || !confirmPassword) {
@@ -41,7 +45,6 @@ const Signup = () => {
     }
 
     try {
-      // Signup request to backend
       const response = await axios.post(
         `${API_BASE_URL}/user/signup`,
         {
@@ -54,21 +57,24 @@ const Signup = () => {
         }
       );
 
+      console.log(response.data)
+
       if (response.status === 201) {
-        dispatch(setUser(response.data.user));
+        dispatch(setUser(response.data));
         toast.success("Signup successful!");
+        dispatch(setLoading(false));
+        navigate("/homepage");
       } else {
-        toast.error(response.message || "Signup failed");
+        toast.error("Signup failed.");
       }
     } catch (err) {
-      console.error(err);
       toast.error("Something went wrong. Please try again.");
     }
   };
 
   return (
     <div className="signup-container">
-      <img src="/MainLogo.png" alt="Main Logo" className="MainLogo" />
+      <img src="/MainIcon.png" alt="Main Logo" className="MainLogo" />
       <div className="signup-box">
         <h2>Welcome CANOVA 👋</h2>
         <p>
@@ -77,6 +83,7 @@ const Signup = () => {
           Sign in to start managing your projects.
         </p>
         <form onSubmit={handleSubmit}>
+          <label>Name</label>
           <input
             type="text"
             name="name"
@@ -84,6 +91,8 @@ const Signup = () => {
             value={formData.name}
             onChange={handleChange}
           />
+
+          <label>Email</label>
           <input
             type="email"
             name="email"
@@ -91,24 +100,58 @@ const Signup = () => {
             value={formData.email}
             onChange={handleChange}
           />
-          <input
-            type="password"
-            name="password"
-            placeholder="at least 8 characters"
-            value={formData.password}
-            onChange={handleChange}
-          />
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="at least 8 characters"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-          />
+
+          <label>Password</label>
+          <div className="password-wrapper">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="at least 8 characters"
+              value={formData.password}
+              onChange={handleChange}
+            />
+            <span
+              className="toggle-password"
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              <img
+                src={showPassword ? "/openEyeIcon.png" : "/closedEyeIcon.JPG"}
+                alt="Toggle Visibility"
+                className="eye-icon"
+              />
+            </span>
+          </div>
+
+          <label>Confirm Password</label>
+          <div className="password-wrapper">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
+              placeholder="at least 8 characters"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+            />
+            <span
+              className="toggle-password"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+            >
+              <img
+                src={
+                  showConfirmPassword
+                    ? "/openEyeIcon.png"
+                    : "/closedEyeIcon.JPG"
+                }
+                alt="Toggle Visibility"
+                className="eye-icon"
+              />
+            </span>
+          </div>
+
           <button type="submit">Sign up</button>
         </form>
-        <p>
-          Do you have an account? <a href="/login">Sign in</a>
+
+        <p className="login-link">
+          Already have an account? <NavLink to="/user/login">Login</NavLink>
         </p>
       </div>
     </div>
