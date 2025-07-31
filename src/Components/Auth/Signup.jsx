@@ -57,18 +57,18 @@ const Signup = () => {
         }
       );
 
-      console.log(response.data)
+      console.log(response)
 
       if (response.status === 201) {
         dispatch(setUser(response.data));
         toast.success("Signup successful!");
-        dispatch(setLoading(false));
         navigate("/homepage");
       } else {
         toast.error("Signup failed.");
       }
     } catch (err) {
-      toast.error("Something went wrong. Please try again.");
+      console.log(err)
+      toast.error(err.response.data.message);
     }
   };
 

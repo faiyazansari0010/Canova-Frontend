@@ -12,7 +12,7 @@
   flex-direction: column;
   justify-content: space-between;
   height: 100vh;
-  width: 200px;
+  min-width: 250px;
   background-color: #f7f9fb;
   padding: 16px 8px;
   box-sizing: border-box;
@@ -48,9 +48,17 @@
 }
 
 .sidebar-logo {
+  gap: 10px;
+  display: flex;
+  align-items: center;
   width: 150px;
   margin: 0 auto 16px auto;
   padding-top: 20px;
+}
+
+.sidebar-logo > span{
+  margin: 0;
+  color: #B3B3B3;
 }
 
 .sidebar-scrollable {
@@ -84,9 +92,28 @@
   background-color: #e9f2ff; 
 }
 
-.pageNameText {
-  display: inline-block;
+.pageNameContainer {
+  display: flex;
+  justify-content: space-between;
   width: 100%;
+  height: 41px;
+  align-items: center;
+}
+
+.conditionIconsContainer{
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.conditionTrueIcon, .conditionFalseIcon{
+  width: 7px;
+  height: 7px;
+}
+
+.conditionTrueIcon:hover, .conditionFalseIcon:hover{
+  width: 10px;
+  height: 10px;
 }
 
 .pageNameInputBox {
@@ -99,13 +126,17 @@
 }
 
 .add-page-btn {
-   background-color: #e9f2ff;
+  background-color: #e9f2ff;
   border: none;
   padding: 10px 12px;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
   font-size: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
 }
 
 .add-page-btn:hover {
@@ -143,10 +174,11 @@
   overflow-y: auto;
   height: 100vh;
   background-color: white;
+  position: relative;
 }
 
 .form-header {
-  width: calc(100% - 200px); 
+  width: calc(100% - 250px); 
   height: 60px;
   background-color: white;
   border-bottom: 1px solid #ddd;
@@ -156,7 +188,7 @@
   padding: 0 30px;
   position: absolute;
   top: 0;
-  left: 200px;
+  left: 250px;
   z-index: 10;
 }
 
@@ -199,7 +231,7 @@
 
 /* Right Sidebar */
 .right-sidebar {
-  width: 240px;
+  width: 321px;
   background-color: #e9f0f9;
   padding-top: 80px; /* Push content down below form-header */
   padding-left: 16px;
@@ -207,6 +239,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 20%;
 }
 
 .tool-button {
@@ -273,7 +306,7 @@
 
 
 
-.upload-dropzone {
+/* .upload-dropzone {
   border: 2px dashed #aaa;
   padding: 20px;
   text-align: center;
@@ -284,6 +317,13 @@
   transition: background-color 0.2s ease;
 }
 
+.upload-modal{
+  max-height: 900px;
+  max-width: 780px;
+  position: absolute;
+  z-index: 1111111;
+}
+
 .upload-dropzone.drag-over {
   background-color: #eaeaea;
 }
@@ -291,8 +331,143 @@
 .upload-modal-overlay{
   background-color: white;
   opacity: 0.95;
+  z-index: 111;
   backdrop-filter: blur(5px);
-  width: calc(100% - 470px); 
+  width: calc(100vw - 470px); 
   position: absolute;
+  height: 100vh;
+  
+} */
+
+.upload-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.upload-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 780px;
+  height: 600px;
+  max-width: 90vw;
+  position: relative;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+}
+
+.close-icon {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.upload-modal h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 20px 0 12px 0;
+  color: #000;
+}
+
+.upload-dropzone {
+  border: 2px dashed #d0d5dd;
+  border-radius: 12px;
+  padding: 48px 20px;
+  text-align: center;
+  background-color: #fafafa;
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.upload-dropzone.drag-over {
+  border-color: #4f46e5;
+}
+
+.upload-dropzone p {
+  font-size: 16px;
+  font-weight: 500;
+  color: #101828;
+  margin-bottom: 8px;
+}
+
+.upload-dropzone input[type="file"] {
+  position: absolute;
+  width: 100%;
   height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+}
+
+.upload-dropzone::after {
+  content: "Consider upto 200 mb per video";
+  display: block;
+  font-size: 14px;
+  font-weight: 400;
+  color: #667085;
+  margin-top: 4px;
+}
+
+.upload-dropzone::before {
+  content: "or";
+  display: block;
+  font-size: 14px;
+  color: #667085;
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+
+.upload-dropzone .browse-button {
+  background-color: #1570ef;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+ul {
+  list-style: disc;
+  padding-left: 20px;
+  margin-top: 12px;
+  color: #344054;
+  font-size: 14px;
+}
+
+.uploadFileBtn {
+  margin-top: 20px;
+  margin-left: 250px;
+  margin-right: auto;
+  width: 200px;
+  padding: 12px;
+  background-color: #1570ef;
+  color: white;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #d0d5dd;
+  cursor: not-allowed;
 }

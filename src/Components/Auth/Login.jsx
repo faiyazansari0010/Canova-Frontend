@@ -50,13 +50,12 @@ const Login = () => {
       if (response.status === 200) {
         dispatch(setUser(response.data));
         toast.success("Login successful!");
-        // dispatch(setLoading(false));
         navigate("/homepage");
       } else {
         toast.error("Login failed");
       }
     } catch (err) {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(err.response.data.message);
     } finally {
       setFormDisabled(false);
     }
