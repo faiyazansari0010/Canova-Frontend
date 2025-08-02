@@ -7,18 +7,45 @@ import QuestionBlock from "./QuestionBlock";
 import ConditionModeView from "../ConditionModeView";
 import { API_BASE_URL } from "../../../constants";
 import NextPageButton from "../NextPageButton";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import FlowChart from "../FlowChart";
+import { saveForm } from "../../Redux/userSlice";
+import PublishModal from "../PublishModal";
+import { useLogout } from "../Auth/logout";
 
 const CreateFormLayout = () => {
+  const logout = useLogout();
+  const { pageID, projectID, formID } = useParams();
+  let projects = useSelector((state) => state.user.projects);
+  let project = projects?.find((p) => p.projectID === projectID);
+  let form = project?.forms?.find((f) => f?.formID === formID);
+
+  const sharedWorks = useSelector((state) => state?.user?.sharedWorks);
+
+  console.log(sharedWorks)
+
+  sharedWorks.map((item) => {
+    if (item?.projectID === projectID) {
+      project = item;
+      form = item.formData.find((item1) => item1.formID === formID);
+    }
+  });
+
+  console.log(project, form)
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { pageID } = useParams();
-  const [formPages, setFormPages] = useState([]);
+
+  const [formPages, setFormPages] = useState(form?.formPages || []);
   const pageExists = formPages.some((page) => page.pageID === pageID);
   const currentPage = formPages.find((page) => page.pageID === pageID);
-  // console.log(formPages);
   const isPageSelected =
     pageID !== undefined && pageID !== null && pageID !== "" && pageExists;
+
+  const currentFormName = form?.formName;
+
+  console.log(formPages);
 
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadType, setUploadType] = useState("");
@@ -44,21 +71,21 @@ const CreateFormLayout = () => {
     sectionIndex: null,
   });
 
-  const [publishModal, setPublishModal] = useState(false);
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
 
   useEffect(() => {
     if (pageID && !formPages.some((page) => page.pageID === pageID)) {
-      navigate("/createForm", { replace: true });
+      navigate(`/createForm/${projectID}/${formID}`, { replace: true });
     }
   }, [pageID, formPages, navigate]);
-
-  useEffect(() => {
-    console.log(formPages);
-  }, [formPages]);
 
   const [showFlowChart, setShowFlowChart] = useState(false);
 
   const [showPreview, setShowPreview] = useState(false);
+
+  const email = useSelector((state) => state.user.email);
+
+  const mainContent = useSelector((state) => state.user.mainContent);
 
   function getRgbaColor(inputColor, opacity) {
     // Support color names, hex, rgb(a)
@@ -92,7 +119,7 @@ const CreateFormLayout = () => {
       pageSections: [],
     };
     setFormPages([...formPages, newPage]);
-    navigate(`/createForm/${newPageID}`);
+    navigate(`/createForm/${projectID}/${formID}/${newPageID}`);
   };
 
   const handleToggleConditionMode = () => {
@@ -102,12 +129,6 @@ const CreateFormLayout = () => {
     ];
 
     const hasQuestions = allQuestions.length > 0;
-    // const hasAtLeastOneResponse = allQuestions.some(
-    //   (q) =>
-    //     q.userResponse !== undefined &&
-    //     q.userResponse !== null &&
-    //     q.userResponse !== ""
-    // );
 
     if (!hasQuestions) {
       toast.info(
@@ -116,9 +137,11 @@ const CreateFormLayout = () => {
       return;
     }
 
-    const updatedPages = [...formPages];
-    currentPage.isConditionMode = true;
-    setFormPages(updatedPages);
+    setFormPages((prevPages) =>
+      prevPages.map((page) =>
+        page.pageID === pageID ? { ...page, isConditionMode: true } : page
+      )
+    );
   };
 
   const handleAddQuestion = () => {
@@ -194,17 +217,27 @@ const CreateFormLayout = () => {
   };
 
   const handleAddQuestionText = () => {
-    const updated = [...currentPage.pageQuestions];
-    if (updated.length === 0) return;
-
-    const lastQuestion = updated[updated.length - 1];
-    lastQuestion.questionText = "";
-    lastQuestion.isEditingQuestionText = true;
+    if (currentPage.pageQuestions.length === 0) return;
 
     setFormPages((prev) =>
-      prev.map((page) =>
-        page.pageID === pageID ? { ...page, pageQuestions: updated } : page
-      )
+      prev.map((page) => {
+        if (page.pageID === pageID) {
+          const updatedQuestions = page.pageQuestions.map((question, index) => {
+            if (index === page.pageQuestions.length - 1) {
+              // Last question
+              return {
+                ...question,
+                questionText: "",
+                isEditingQuestionText: true,
+              };
+            }
+            return question;
+          });
+
+          return { ...page, pageQuestions: updatedQuestions };
+        }
+        return page;
+      })
     );
   };
 
@@ -289,27 +322,49 @@ const CreateFormLayout = () => {
         }
       }
 
-      const updatedPages = [...formPages];
-      const pageIndex = updatedPages.findIndex((p) => p.pageID === pageID);
-      const page = updatedPages[pageIndex];
+      setFormPages((prevPages) =>
+        prevPages.map((page) => {
+          if (page.pageID !== pageID) return page;
 
-      const questions = currentQuestion.insideSection
-        ? page.pageSections[currentQuestion.sectionIndex].questions
-        : page.pageQuestions;
-
-      const lastQuestion = questions[questions.length - 1];
-
-      lastQuestion.uploadedFiles = uploadedData;
-      lastQuestion.userResponse = uploadedData;
-
-      if (currentQuestion.insideSection) {
-        page.pageSections[currentQuestion.sectionIndex].questions = questions;
-      } else {
-        page.pageQuestions = questions;
-      }
-
-      updatedPages[pageIndex] = page;
-      setFormPages(updatedPages);
+          if (currentQuestion.insideSection) {
+            const updatedSections = page.pageSections.map((section, sIndex) => {
+              if (sIndex === currentQuestion.sectionIndex) {
+                const updatedQuestions = section.questions.map(
+                  (question, qIndex) => {
+                    if (qIndex === section.questions.length - 1) {
+                      // Last question
+                      return {
+                        ...question,
+                        uploadedFiles: uploadedData,
+                        userResponse: uploadedData,
+                      };
+                    }
+                    return question;
+                  }
+                );
+                return { ...section, questions: updatedQuestions };
+              }
+              return section;
+            });
+            return { ...page, pageSections: updatedSections };
+          } else {
+            const updatedQuestions = page.pageQuestions.map(
+              (question, qIndex) => {
+                if (qIndex === page.pageQuestions.length - 1) {
+                  // Last question
+                  return {
+                    ...question,
+                    uploadedFiles: uploadedData,
+                    userResponse: uploadedData,
+                  };
+                }
+                return question;
+              }
+            );
+            return { ...page, pageQuestions: updatedQuestions };
+          }
+        })
+      );
 
       toast.success("Files uploaded successfully!");
       setShowUploadModal(false);
@@ -335,31 +390,43 @@ const CreateFormLayout = () => {
 
         const data = res.data;
 
-        const updatedPages = [...formPages];
-        const pageIndex = updatedPages.findIndex((p) => p.pageID === pageID);
-        const questions = updatedPages[pageIndex].pageQuestions;
-        const lastQuestion = questions[questions.length - 1];
+        setFormPages((prevPages) =>
+          prevPages.map((page) => {
+            if (page.pageID !== pageID) return page;
 
-        if (uploadType === "image") {
-          lastQuestion.questionImage = data.url;
-        } else if (uploadType === "video") {
-          lastQuestion.questionVideo = data.url;
-        } else if (uploadType === "pdf") {
-          lastQuestion.questionPDF = data.url;
-        } else if (uploadType === "zip") {
-          lastQuestion.questionZIP = data.url;
-        } else if (uploadType === "audio") {
-          lastQuestion.questionAudio = data.url;
-        } else if (uploadType === "ppt") {
-          lastQuestion.questionPPT = data.url;
-        } else if (uploadType === "spreadsheet") {
-          lastQuestion.questionSpreadsheet = data.url;
-        } else if (uploadType === "document") {
-          lastQuestion.questionDocument = data.url;
-        }
+            const updatedQuestions = page.pageQuestions.map(
+              (question, qIndex) => {
+                if (qIndex === page.pageQuestions.length - 1) {
+                  // Last question
+                  const updatedQuestion = { ...question };
 
-        updatedPages[pageIndex].pageQuestions = questions;
-        setFormPages(updatedPages);
+                  if (uploadType === "image") {
+                    updatedQuestion.questionImage = data.url;
+                  } else if (uploadType === "video") {
+                    updatedQuestion.questionVideo = data.url;
+                  } else if (uploadType === "pdf") {
+                    updatedQuestion.questionPDF = data.url;
+                  } else if (uploadType === "zip") {
+                    updatedQuestion.questionZIP = data.url;
+                  } else if (uploadType === "audio") {
+                    updatedQuestion.questionAudio = data.url;
+                  } else if (uploadType === "ppt") {
+                    updatedQuestion.questionPPT = data.url;
+                  } else if (uploadType === "spreadsheet") {
+                    updatedQuestion.questionSpreadsheet = data.url;
+                  } else if (uploadType === "document") {
+                    updatedQuestion.questionDocument = data.url;
+                  }
+
+                  return updatedQuestion;
+                }
+                return question;
+              }
+            );
+
+            return { ...page, pageQuestions: updatedQuestions };
+          })
+        );
 
         toast.success("File uploaded successfully!");
         setShowUploadModal(false);
@@ -408,6 +475,21 @@ const CreateFormLayout = () => {
     toast.success(
       "You have chosen some file(s). Click on Upload File to upload them"
     );
+  };
+
+  const handleSaveForm = async () => {
+    dispatch(saveForm({ formID, projectID, formPages }));
+
+    await axios.post(`${API_BASE_URL}/user/saveForm`, {
+      formID: formID,
+      currentProjectID: projectID,
+      currentProjectName: project?.projectName,
+      targetProjectID: projectID,
+      sharedByEmail: email,
+      currentForm: form,
+    });
+
+    toast.success("Form saved successfully!");
   };
 
   return (
@@ -597,7 +679,9 @@ const CreateFormLayout = () => {
                     }`}
                     onClick={() => {
                       if (!page.isEditing) {
-                        navigate(`/createForm/${page.pageID}`);
+                        navigate(
+                          `/createForm/${projectID}/${formID}/${page.pageID}`
+                        );
                       }
                     }}
                     onDoubleClick={(e) => {
@@ -641,7 +725,7 @@ const CreateFormLayout = () => {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   navigate(
-                                    `/createForm/${page?.pageCondition?.ifTruePage}`
+                                    `/createForm/${projectID}/${formID}/${page?.pageCondition?.ifTruePage}`
                                   );
                                 }}
                               />
@@ -652,7 +736,7 @@ const CreateFormLayout = () => {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   navigate(
-                                    `/createForm/${page?.pageCondition?.ifFalsePage}`
+                                    `/createForm/${projectID}/${formID}/${page?.pageCondition?.ifFalsePage}`
                                   );
                                 }}
                               />
@@ -669,10 +753,13 @@ const CreateFormLayout = () => {
               </button>
             </div>
 
-            <div className="profile-btn">
-              <img src="/profileIcon.png" alt="Profile Icon" />
-              <span>Profile</span>
-            </div>
+            <button
+              style={{ borderColor: "transparent", cursor: "pointer" }}
+              onClick={logout}
+              className="btn-logout"
+            >
+              <img src="/logoutIcon.png" alt="" />
+            </button>
           </div>
 
           {showFlowChart ? (
@@ -690,9 +777,20 @@ const CreateFormLayout = () => {
               )}
               <FlowChart
                 formPages={formPages}
-                publishModal={publishModal}
-                setPublishModal={setPublishModal}
+                setPublishModalOpen={setPublishModalOpen}
               />
+
+              {publishModalOpen && (
+                <PublishModal
+                  publishModalOpen={publishModalOpen}
+                  setPublishModalOpen={setPublishModalOpen}
+                  formID={formID}
+                  formName={currentFormName}
+                  currentProjectID={projectID}
+                  formPages={formPages}
+                  setFormPages={setFormPages}
+                />
+              )}
             </>
           ) : (
             <>
@@ -707,7 +805,12 @@ const CreateFormLayout = () => {
                     >
                       Preview
                     </button>
-                    <button className="save-btn">Save</button>
+                    <button
+                      className="save-btn"
+                      onClick={() => handleSaveForm()}
+                    >
+                      Save
+                    </button>
                   </div>
                 </div>
               )}

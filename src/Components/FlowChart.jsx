@@ -1,7 +1,12 @@
 import React from "react";
 import "./FlowChart.css";
+import { useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { saveForm } from "../Redux/userSlice";
 
-const FlowChart = ({ formPages }) => {
+const FlowChart = ({ formPages, setPublishModalOpen }) => {
+  const dispatch = useDispatch()
+  const {formID, projectID} = useParams()
   const pageMap = formPages.reduce((acc, page) => {
     acc[page.pageID] = page;
     return acc;
@@ -33,7 +38,10 @@ const FlowChart = ({ formPages }) => {
             top: "650px",
             right: "10px",
           }}
-          onClick={() => setPubishModal(true)}
+          onClick={() => {
+            setPublishModalOpen(true);
+            dispatch(saveForm({ formID, projectID, formPages }));
+          }}
         >
           Next
         </button>
@@ -131,7 +139,7 @@ const FlowChart = ({ formPages }) => {
           top: "650px",
           right: "10px",
         }}
-        onClick={() => setPubishModal(true)}
+        onClick={() => setPublishModalOpen(true)}
       >
         Next
       </button>

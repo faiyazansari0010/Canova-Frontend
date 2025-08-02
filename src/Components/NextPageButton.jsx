@@ -71,7 +71,7 @@ export default function NextPageButton({ currentPage, formPages }) {
     }
 
     if (nextPageID) {
-      navigate(`/createForm/${nextPageID}`);
+      navigate(`/createForm/${projectID}/${formID}/${nextPageID}`);
     }
   };
 
@@ -87,7 +87,7 @@ export default function NextPageButton({ currentPage, formPages }) {
           fontSize: "16px",
           cursor: "pointer",
           boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
-          position:"relative"
+          position: "relative",
         }}
         onClick={handleNext}
       >

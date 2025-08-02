@@ -20,12 +20,13 @@ const App = () => {
   const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
+    const lastEmail = localStorage.getItem("lastLoggedInUserEmail");
     const init = async () => {
-      await fetchUser(dispatch);
+      await fetchUser(dispatch, lastEmail);
       setAppReady(true);
     };
     init();
-  }, []);
+  }, [userEmail]);
 
   if (!appReady) return <h1>Loading...</h1>;
 
@@ -42,7 +43,7 @@ const App = () => {
           }
         />
         <Route
-          path="/createForm"
+          path="/createForm/:projectID/:formID"
           element={
             userEmail !== "" ? (
               <CreateFormLayout />
@@ -52,7 +53,7 @@ const App = () => {
           }
         />
         <Route
-          path="/createForm/:pageID"
+          path="/createForm/:projectID/:formID/:pageID"
           element={
             userEmail !== "" ? (
               <CreateFormLayout />

@@ -48,6 +48,7 @@ const Login = () => {
         { withCredentials: true }
       );
       if (response.status === 200) {
+        localStorage.setItem("lastLoggedInUserEmail", email)
         dispatch(setUser(response.data));
         toast.success("Login successful!");
         navigate("/homepage");

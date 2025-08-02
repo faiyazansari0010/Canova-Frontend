@@ -67,7 +67,7 @@ const QuestionBlock = ({
   };
 
   const handleDevResponseChange = (value) => {
-    console.log(formPages)
+    console.log(formPages);
     setFormPages((prevPages) =>
       prevPages.map((page) => {
         if (page.pageID !== pageID) return page;
@@ -100,23 +100,37 @@ const QuestionBlock = ({
   };
 
   const handleQuestionNameChange = (index, text) => {
-    const updated = insideSection
-      ? currentPage.pageSections?.[sectionIndex]?.questions || []
-      : currentPage.pageQuestions || [];
+  const current = insideSection
+    ? currentPage.pageSections?.[sectionIndex]?.questions || []
+    : currentPage.pageQuestions || [];
 
-    updated[index].questionName = text;
-    updateCurrentQuestionSet(updated);
-  };
+  const updated = current.map((question, qIndex) => {
+    if (qIndex === index) {
+      return { ...question, questionName: text };
+    }
+    return question;
+  });
+
+  updateCurrentQuestionSet(updated);
+};
 
   const toggleQuestionEditMode = (qIndex, editing) => {
-    const updated = insideSection
+    const current = insideSection
       ? currentPage.pageSections?.[sectionIndex]?.questions || []
       : currentPage.pageQuestions || [];
 
-    if (updated[qIndex].questionName === "") {
-      updated[qIndex].questionName = "What is ?";
-    }
-    updated[qIndex].isEditing = editing;
+    const updated = current.map((question, index) => {
+      if (index === qIndex) {
+        const updatedQuestion = { ...question };
+        if (updatedQuestion.questionName === "") {
+          updatedQuestion.questionName = "What is ?";
+        }
+        updatedQuestion.isEditing = editing;
+        return updatedQuestion;
+      }
+      return question;
+    });
+
     updateCurrentQuestionSet(updated);
   };
 
@@ -197,17 +211,28 @@ const QuestionBlock = ({
   };
 
   const toggleOptionEditMode = (qIndex, oIndex, editing) => {
-    const updated = insideSection
-      ? currentPage.pageSections?.[sectionIndex]?.questions || []
-      : currentPage.pageQuestions || [];
-    if (updated[qIndex].options[oIndex].optionName === "") {
-      updated[qIndex].options[
-        oIndex
-      ].optionName = `Option ${updated[qIndex].options.length}`;
+  const current = insideSection
+    ? currentPage.pageSections?.[sectionIndex]?.questions || []
+    : currentPage.pageQuestions || [];
+
+  const updated = current.map((question, questionIndex) => {
+    if (questionIndex === qIndex) {
+      const updatedOptions = question.options.map((option, optionIndex) => {
+        if (optionIndex === oIndex) {
+          const optionName = option.optionName === "" 
+            ? `Option ${question.options.length}` 
+            : option.optionName;
+          return { ...option, optionName, isEditing: editing };
+        }
+        return option;
+      });
+      return { ...question, options: updatedOptions };
     }
-    updated[qIndex].options[oIndex].isEditing = editing;
-    updateCurrentQuestionSet(updated);
-  };
+    return question;
+  });
+
+  updateCurrentQuestionSet(updated);
+};
 
   const handleOptionKeyDown = (qIndex, oIndex, e) => {
     const updated = insideSection

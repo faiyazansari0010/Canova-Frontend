@@ -41,11 +41,6 @@ body {
   padding: 0;
 }
 
-/* <div className="sidebar-header" onClick={() => navigate("/homepage")}>
-  <img src="/homepageIcon.png" alt="" />
-  <span className="logo">CANOVA</span>
-</div> */
-
 .sidebar-header {
   padding: 32px 0 24px 32px;
   display: flex;
@@ -407,3 +402,154 @@ body {
 .modal-create-button:hover {
   background-color: #2563eb;
 }
+
+
+.profile-container {
+  width: 100%;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.profile-header {
+  background: white;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e9ecef;
+  border-radius: 8px 8px 0 0;
+}
+
+.profile-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #212529;
+}
+
+.profile-content {
+  padding: 32px 24px;
+  background: #f8f9fa;
+}
+
+.avatar-section {
+  justify-content: space-between;
+  display: flex;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 16px;
+  background: #e9ecef;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #212529;
+  margin-bottom: 2px;
+}
+
+.user-email {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.form-fields {
+  margin-bottom: 32px;
+}
+
+.field-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.field-row:last-child {
+  margin-bottom: 0;
+}
+
+.field-label {
+  font-size: 14px;
+  color: #495057;
+  font-weight: 400;
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.field-input {
+  /* flex: 1; */
+  margin-left: 20px;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  color: #495057;
+  outline: none;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.field-input:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.field-input::placeholder {
+  color: #adb5bd;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.save-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.save-button:hover {
+  background: #0056b3;
+}
+
+.discard-button {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.discard-button:hover {
+  background: #545b62;
+}
+

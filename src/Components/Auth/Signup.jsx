@@ -60,6 +60,7 @@ const Signup = () => {
       console.log(response)
 
       if (response.status === 201) {
+        localStorage.setItem("lastLoggedInUserEmail", email)
         dispatch(setUser(response.data));
         toast.success("Signup successful!");
         navigate("/homepage");
