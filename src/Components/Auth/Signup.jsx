@@ -26,6 +26,7 @@ const Signup = () => {
   };
 
   const handleSubmit = async (e) => {
+    
     e.preventDefault();
     const { name, email, password, confirmPassword } = formData;
 
@@ -45,6 +46,7 @@ const Signup = () => {
     }
 
     try {
+      
       const response = await axios.post(
         `${API_BASE_URL}/user/signup`,
         {
