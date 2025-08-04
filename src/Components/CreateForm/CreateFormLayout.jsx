@@ -23,7 +23,7 @@ const CreateFormLayout = () => {
 
   const sharedWorks = useSelector((state) => state?.user?.sharedWorks);
 
-  console.log(sharedWorks)
+  console.log(sharedWorks);
 
   sharedWorks.map((item) => {
     if (item?.projectID === projectID) {
@@ -32,7 +32,7 @@ const CreateFormLayout = () => {
     }
   });
 
-  console.log(project, form)
+  console.log(project, form);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -286,6 +286,7 @@ const CreateFormLayout = () => {
   };
 
   const uploadFile = async () => {
+    console.log("inside uploadfile function");
     if (uploadType === "File Upload") {
       if (selectedFiles.length === 0) {
         toast.error("No files selected");
@@ -378,6 +379,11 @@ const CreateFormLayout = () => {
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("type", uploadType);
+      console.log("uploadType =", uploadType);
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
 
       try {
         const res = await axios.post(

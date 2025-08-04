@@ -100,19 +100,19 @@ const QuestionBlock = ({
   };
 
   const handleQuestionNameChange = (index, text) => {
-  const current = insideSection
-    ? currentPage.pageSections?.[sectionIndex]?.questions || []
-    : currentPage.pageQuestions || [];
+    const current = insideSection
+      ? currentPage.pageSections?.[sectionIndex]?.questions || []
+      : currentPage.pageQuestions || [];
 
-  const updated = current.map((question, qIndex) => {
-    if (qIndex === index) {
-      return { ...question, questionName: text };
-    }
-    return question;
-  });
+    const updated = current.map((question, qIndex) => {
+      if (qIndex === index) {
+        return { ...question, questionName: text };
+      }
+      return question;
+    });
 
-  updateCurrentQuestionSet(updated);
-};
+    updateCurrentQuestionSet(updated);
+  };
 
   const toggleQuestionEditMode = (qIndex, editing) => {
     const current = insideSection
@@ -135,155 +135,229 @@ const QuestionBlock = ({
   };
 
   const handleTypeChange = (index, type) => {
-    const updated = [
-      ...(insideSection
-        ? currentPage.pageSections?.[sectionIndex]?.questions || []
-        : currentPage.pageQuestions || []),
-    ];
+    const current = insideSection
+      ? currentPage.pageSections?.[sectionIndex]?.questions || []
+      : currentPage.pageQuestions || [];
 
-    updated[index].questionType = type;
+    const updated = current.map((question, qIndex) => {
+      if (qIndex === index) {
+        // Create a new question object instead of mutating the original
+        let newQuestion = { ...question };
+        newQuestion.questionType = type;
 
-    if (type === "Multiple Choice" || type === "Checkbox") {
-      updated[index].options = [
-        {
-          optionType: type,
-          optionID: nanoid(),
-          optionName: "Option 1",
-          isEditing: false,
-        },
-        {
-          optionType: type,
-          optionID: nanoid(),
-          optionName: "Option 2",
-          isEditing: false,
-        },
-      ];
-    } else if (type === "Dropdown") {
-      updated[index].options = [
-        {
-          optionType: type,
-          optionID: nanoid(),
-          optionName: "Please select...",
-          isEditing: false,
-        },
-        {
-          optionType: type,
-          optionID: nanoid(),
-          optionName: "Dropdown Option 1",
-          isEditing: false,
-        },
-        {
-          optionType: type,
-          optionID: nanoid(),
-          optionName: "Dropdown Option 2",
-          isEditing: false,
-        },
-      ];
-    } else if (type === "Rating") {
-      updated[index].rating = 0;
-    } else if (type === "Linear Scale") {
-      updated[index].scale = 5;
-    } else if (type === "Date") {
-      updated[index].date = "";
-    } else if (type === "File Upload") {
-      updated[index].file = null;
-    }
+        if (type === "Multiple Choice" || type === "Checkbox") {
+          newQuestion.options = [
+            {
+              optionType: type,
+              optionID: nanoid(),
+              optionName: "Option 1",
+              isEditing: false,
+            },
+            {
+              optionType: type,
+              optionID: nanoid(),
+              optionName: "Option 2",
+              isEditing: false,
+            },
+          ];
+        } else if (type === "Dropdown") {
+          newQuestion.options = [
+            {
+              optionType: type,
+              optionID: nanoid(),
+              optionName: "Please select...",
+              isEditing: false,
+            },
+            {
+              optionType: type,
+              optionID: nanoid(),
+              optionName: "Dropdown Option 1",
+              isEditing: false,
+            },
+            {
+              optionType: type,
+              optionID: nanoid(),
+              optionName: "Dropdown Option 2",
+              isEditing: false,
+            },
+          ];
+        } else if (type === "Rating") {
+          newQuestion.rating = 0;
+          // Remove options if they exist from previous type
+          delete newQuestion.options;
+        } else if (type === "Linear Scale") {
+          newQuestion.scale = 5;
+          // Remove options if they exist from previous type
+          delete newQuestion.options;
+        } else if (type === "Date") {
+          newQuestion.date = "";
+          // Remove options if they exist from previous type
+          delete newQuestion.options;
+        } else if (type === "File Upload") {
+          newQuestion.file = null;
+          // Remove options if they exist from previous type
+          delete newQuestion.options;
+        } else {
+          // For other types like "Short Answer", "Paragraph", etc.
+          // Remove options if they exist from previous type
+          delete newQuestion.options;
+        }
 
-    if (type === "Checkbox") {
-      updated[index].userResponse = [];
-    } else if (type === "File Upload") {
-      updated[index].userResponse = "";
-      updated[index].file = null;
-    } else {
-      updated[index].userResponse = "";
-    }
+        // Set userResponse based on type
+        if (type === "Checkbox") {
+          newQuestion.userResponse = [];
+        } else if (type === "File Upload") {
+          newQuestion.userResponse = "";
+          newQuestion.file = null;
+        } else {
+          newQuestion.userResponse = "";
+        }
+
+        return newQuestion;
+      }
+      // Return the original question object for unchanged items
+      return question;
+    });
+
     console.log(updated);
-
     updateCurrentQuestionSet(updated);
   };
 
   const handleOptionTextChange = (qIndex, oIndex, value) => {
-    const updated = insideSection
+    const currentQuestions = insideSection
       ? currentPage.pageSections?.[sectionIndex]?.questions || []
       : currentPage.pageQuestions || [];
+
+    const updated = JSON.parse(JSON.stringify(currentQuestions));
     updated[qIndex].options[oIndex].optionName = value;
     updateCurrentQuestionSet(updated);
   };
 
   const toggleOptionEditMode = (qIndex, oIndex, editing) => {
-  const current = insideSection
-    ? currentPage.pageSections?.[sectionIndex]?.questions || []
-    : currentPage.pageQuestions || [];
-
-  const updated = current.map((question, questionIndex) => {
-    if (questionIndex === qIndex) {
-      const updatedOptions = question.options.map((option, optionIndex) => {
-        if (optionIndex === oIndex) {
-          const optionName = option.optionName === "" 
-            ? `Option ${question.options.length}` 
-            : option.optionName;
-          return { ...option, optionName, isEditing: editing };
-        }
-        return option;
-      });
-      return { ...question, options: updatedOptions };
-    }
-    return question;
-  });
-
-  updateCurrentQuestionSet(updated);
-};
-
-  const handleOptionKeyDown = (qIndex, oIndex, e) => {
-    const updated = insideSection
+    const current = insideSection
       ? currentPage.pageSections?.[sectionIndex]?.questions || []
       : currentPage.pageQuestions || [];
-    const type = updated[qIndex].questionType;
+
+    const updated = current.map((question, questionIndex) => {
+      if (questionIndex === qIndex) {
+        const updatedOptions = question.options.map((option, optionIndex) => {
+          if (optionIndex === oIndex) {
+            const optionName =
+              option.optionName === ""
+                ? `Option ${question.options.length}`
+                : option.optionName;
+            return { ...option, optionName, isEditing: editing };
+          }
+          return option;
+        });
+        return { ...question, options: updatedOptions };
+      }
+      return question;
+    });
+
+    updateCurrentQuestionSet(updated);
+  };
+
+  const handleOptionKeyDown = (qIndex, oIndex, e) => {
+    const current = insideSection
+      ? currentPage.pageSections?.[sectionIndex]?.questions || []
+      : currentPage.pageQuestions || [];
 
     if (e.key === "Enter") {
       e.preventDefault();
-      e.preventDefault();
-      updated[qIndex].options.splice(oIndex + 1, 0, {
-        optionID: nanoid(),
-        optionType: type,
-        optionName:
-          type === "Dropdown"
-            ? `Dropdown Option ${updated[qIndex].options.length + 1}`
-            : `Option ${updated[qIndex].options.length + 1}`,
-        isEditing: true,
+
+      const updated = current.map((question, questionIndex) => {
+        if (questionIndex === qIndex) {
+          const newOptions = [...question.options]; // Create new options array
+          const type = question.questionType;
+
+          // Insert new option at the correct position
+          newOptions.splice(oIndex + 1, 0, {
+            optionID: nanoid(),
+            optionType: type,
+            optionName:
+              type === "Dropdown"
+                ? `Dropdown Option ${question.options.length + 1}`
+                : `Option ${question.options.length + 1}`,
+            isEditing: true,
+          });
+
+          // Return new question object with new options array
+          return {
+            ...question,
+            options: newOptions,
+          };
+        }
+        return question; // Return unchanged question
       });
+
       updateCurrentQuestionSet(updated);
     }
 
     if (
       e.key === "Backspace" &&
-      updated[qIndex].options[oIndex].optionName.trim() === ""
+      current[qIndex]?.options?.[oIndex]?.optionName?.trim() === ""
     ) {
-      if (updated[qIndex].options.length === 1) {
-        toast.info("Atleast one option must be present.");
-        updated[qIndex].options[oIndex].optionName = "Option 11";
-        updateCurrentQuestionSet(updated);
-        return;
-      }
-      updated[qIndex].options.splice(oIndex, 1);
+      const updated = current.map((question, questionIndex) => {
+        if (questionIndex === qIndex) {
+          const newOptions = [...question.options]; // Create new options array
+
+          if (question.options.length === 1) {
+            toast.info("At least one option must be present.");
+            // Create new options array with updated option name
+            newOptions[oIndex] = {
+              ...newOptions[oIndex],
+              optionName: "Option 1",
+            };
+
+            return {
+              ...question,
+              options: newOptions,
+            };
+          }
+
+          // Remove option at the specified index
+          newOptions.splice(oIndex, 1);
+
+          return {
+            ...question,
+            options: newOptions,
+          };
+        }
+        return question; // Return unchanged question
+      });
+
       updateCurrentQuestionSet(updated);
     }
   };
 
   const handleQuestionDelete = (qIndex) => {
-    const updated = insideSection
+    const currentQuestions = insideSection
       ? currentPage.pageSections?.[sectionIndex]?.questions || []
       : currentPage.pageQuestions || [];
+
+    const updated = [...currentQuestions];
     updated.splice(qIndex, 1);
     updateCurrentQuestionSet(updated);
   };
 
   const handleRatingChange = (qIndex, value) => {
-    const updated = insideSection
+    const current = insideSection
       ? currentPage.pageSections?.[sectionIndex]?.questions || []
       : currentPage.pageQuestions || [];
-    updated[qIndex].rating = value;
-    updated[qIndex].userResponse = value;
+
+    const updated = current.map((question, questionIndex) => {
+      if (questionIndex === qIndex) {
+        // Create a new question object instead of mutating the original
+        return {
+          ...question,
+          rating: value,
+          userResponse: value,
+        };
+      }
+      return question; // Return unchanged question
+    });
+
     updateCurrentQuestionSet(updated);
   };
 
@@ -366,12 +440,25 @@ const QuestionBlock = ({
   };
 
   const toggleDropdown = (qIndex) => {
-    const updated = insideSection
+    const current = insideSection
       ? currentPage.pageSections?.[sectionIndex]?.questions || []
       : currentPage.pageQuestions || [];
-    updated[qIndex].showDropdown = !updated[qIndex].showDropdown;
+
+    const updated = current.map((question, questionIndex) => {
+      if (questionIndex === qIndex) {
+        // Create a new question object instead of mutating the original
+        return {
+          ...question,
+          showDropdown: !question.showDropdown,
+        };
+      }
+      return question; // Return unchanged question
+    });
+
     updateCurrentQuestionSet(updated);
   };
+
+  console.log(currentPage);
 
   return (
     <>

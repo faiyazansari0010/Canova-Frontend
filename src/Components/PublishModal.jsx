@@ -12,9 +12,9 @@ const PublishModal = ({
   formName,
   currentProjectID,
   formPages,
-  setFormPages
+  setFormPages,
 }) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const projects = useSelector((state) => state.user.projects);
   const currentProject = projects?.find(
     (project) => project.projectID === currentProjectID
@@ -36,6 +36,8 @@ const PublishModal = ({
   const [newPermission, setNewPermission] = useState("edit");
 
   const handlePublish = async () => {
+    console.log(formPages);
+
     if (!selectedProjectID) return;
 
     dispatch(
@@ -47,7 +49,7 @@ const PublishModal = ({
     );
 
     try {
-      currentForm = {...currentForm, isDraft:false}
+      currentForm = { ...currentForm, isDraft: false };
       await axios.post(`${API_BASE_URL}/user/publish-form`, {
         formID,
         formName,
@@ -58,11 +60,11 @@ const PublishModal = ({
         sharedEmails: emailInvites,
         currentProjectName,
         currentForm,
-        sharedType:"form",
+        sharedType: "form",
       });
 
-      dispatch(publishForm({currentProjectID, formID, formPages}))
-      navigate("/homepage")
+      dispatch(publishForm({ currentProjectID, formID, formPages }));
+      navigate("/homepage");
     } catch (err) {
       console.error("Failed to publish:", err);
     }
@@ -103,7 +105,6 @@ const PublishModal = ({
                 {project?.projectName}
               </option>
             ))}
-            
           </select>
         </div>
 
